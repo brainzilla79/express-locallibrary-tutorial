@@ -142,6 +142,7 @@ exports.bookinstance_delete_post = function(req, res, next) {
         res.redirect('/catalog/bookinstances');
       });
     });
+  
 };
 
 // Display BookInstance update form on GET.
