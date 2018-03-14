@@ -215,8 +215,14 @@ exports.book_delete_get = function(req, res, next) {
 };
 
 // Handle book delete on POST.
-exports.book_delete_post = function(req, res) {
-  res.send('NOT IMPLEMENTED: Book delete POST');
+exports.book_delete_post = function(req, res, next) {
+  BookInstance.deleteMany({'book': req.body.bookid}, function(err) {
+    if (err) return next(err);
+  });
+  Book.findByIdAndRemove(req.body.bookid, function(err) {
+    if (err) return next(err);
+    res.redirect('/catalog/books');
+  });
 };
 
 // Display book update form on GET.
