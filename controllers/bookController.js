@@ -107,7 +107,7 @@ exports.book_create_post = [
   (req, res, next) => {
     if (!(req.body.genre instanceof Array)) {
       if (typeof req.body.genre === 'undefined') req.body.genre = [];
-      else req.body.genre = new Array(req.body.genre);
+      else req.body.genre = [...req.body.genre];
     }
     next();
   },
@@ -221,7 +221,6 @@ exports.book_delete_get = function(req, res, next) {
 
 // Handle book delete on POST.
 exports.book_delete_post = function(req, res, next) {
-
   BookInstance.deleteMany({ book: req.body.bookid }, function(err) {
     if (err) return next(err);
     Book.findByIdAndRemove(req.body.bookid, function(err) {
@@ -276,6 +275,40 @@ exports.book_update_get = function(req, res, next) {
 };
 
 // Handle book update on POST.
-exports.book_update_post = function(req, res) {
-  res.send('NOT IMPLEMENTED: Book update POST');
-};
+exports.book_update_post = [
+  (req, res, next) => {
+    if (!(req.body.genre instanceof Array)) {
+      if (typeof req.body.genre === 'undefined') req.body.genre = [];
+      else req.body.genre = [...req.body.genre];
+    }
+    next();
+  },
+  body('title', 'Title must not be empty.')
+    .isLength({ min: 1 })
+    .trim(),
+  body('author', 'Author must not be empty.')
+    .isLength({ min: 1 })
+    .trim(),
+  body('summary', 'Summary must not be empty.')
+    .isLength({ min: 1 })
+    .trim(),
+  body('isbn', 'ISBN must not be empty')
+    .isLength({ min: 1 })
+    .trim(),
+
+  sanitizeBody('title')
+    .trim()
+    .escape(),
+  sanitizeBody('author')
+    .trim()
+    .escape(),
+  sanitizeBody('summary')
+    .trim()
+    .escape(),
+  sanitizeBody('isbn')
+    .trim()
+    .escape(),
+  sanitizeBody('genre.*')
+    .trim()
+    .escape()
+];
