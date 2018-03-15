@@ -221,6 +221,7 @@ exports.book_delete_get = function(req, res, next) {
 
 // Handle book delete on POST.
 exports.book_delete_post = function(req, res, next) {
+
   BookInstance.deleteMany({ book: req.body.bookid }, function(err) {
     if (err) return next(err);
     Book.findByIdAndRemove(req.body.bookid, function(err) {
@@ -258,7 +259,7 @@ exports.book_update_get = function(req, res, next) {
         for (let j = 0; j < results.book.genre.length; j++) {
           if (
             results.genres[i]._id.toString() ===
-            results.books.genre[j]._id.toString()
+            results.book.genre[j]._id.toString()
           ) {
             results.genres[i].checked = 'true';
           }
