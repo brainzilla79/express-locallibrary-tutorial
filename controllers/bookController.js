@@ -194,30 +194,34 @@ exports.book_create_post = [
 
 // Display book delete form on GET.
 exports.book_delete_get = function(req, res, next) {
-  async.parallel({
-    book: function(cb) {
-      Book.findById(req.params.id).populate('author').exec(cb);
-    }, 
-    bookinstances: function(cb) {
-      BookInstance.find({'book': req.params.id}).exec(cb);
+  async.parallel(
+    {
+      book: function(cb) {
+        Book.findById(req.params.id)
+          .populate('author')
+          .exec(cb);
+      },
+      bookinstances: function(cb) {
+        BookInstance.find({ book: req.params.id }).exec(cb);
+      }
+    },
+    function(err, results) {
+      if (err) return next(err);
+      if (results.book === null) {
+        res.redirect('catalog/books');
+      }
+      res.render('book_delete', {
+        title: 'Delete Book',
+        book: results.book,
+        bookinstances: results.bookinstances
+      });
     }
-  }, function(err, results) {
-        if (err) return next(err);
-        if (results.book === null) {
-          res.redirect('catalog/books');
-        }
-        res.render('book_delete', {
-          title: 'Delete Book',
-          book: results.book,
-          bookinstances: results.bookinstances
-        });
-  });
+  );
 };
 
 // Handle book delete on POST.
 exports.book_delete_post = function(req, res, next) {
-
-  BookInstance.deleteMany({'book': req.body.bookid}, function(err) {
+  BookInstance.deleteMany({ book: req.body.bookid }, function(err) {
     if (err) return next(err);
     Book.findByIdAndRemove(req.body.bookid, function(err) {
       if (err) return next(err);
@@ -228,7 +232,46 @@ exports.book_delete_post = function(req, res, next) {
 
 // Display book update form on GET.
 exports.book_update_get = function(req, res, next) {
-
+  async.parallel(
+    {
+      book: function(cb) {
+        Book.findById(req.params.id)
+          .populate('author')
+          .populate('genre')
+          .exec(cb);
+      },
+      authors: function(cb) {
+        Author.find(cb);
+      },
+      genres: function(cb) {
+        Genre.find(cb);
+      }
+    },
+    function(err, results) {
+      if (err) return next(err);
+      if (results.book === null) {
+        var err = new Error('Book not found');
+        err.status = 404;
+        return next(err);
+      }
+      for (let i = 0; i < results.genres.length; i++) {
+        for (let j = 0; j < results.book.genre.length; j++) {
+          if (
+            results.genres[i]._id.toString() ===
+            results.books.genre[j]._id.toString()
+          ) {
+            results.genres[i].checked = 'true';
+          }
+        }
+      }
+      res.render('book_form', {
+        title: 'Update Book',
+        authors: results.authors,
+        genres: results.genres,
+        book: results.book
+      });
+    }
+  );
 };
 
 // Handle book update on POST.
