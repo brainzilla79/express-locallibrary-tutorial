@@ -164,29 +164,18 @@ exports.author_delete_post = function(req, res, next) {
 
 // Display Author update form on GET.
 exports.author_update_get = function(req, res, next) {
-  async.parallel(
-    {
-      author: function(cb) {
-        Author.findById(req.params.id).exec(cb);
-      },
-      author_books: function(cb) {
-        Book.find({ author: req.params.id }).exec(cb);
-      }
-    },
-    function(err, results) {
-      if (err) return next(err);
-      if (results.author === null) {
-        var err = new Error('Author not found');
-        err.status = 404;
-        return next(err);
-      }
-      res.render('author_form', {
-        title: 'Update Author',
-        author: results.author,
-        author_books: results.author_books
-      });
+  Author.findById(req.params.id).exec(function(err, author) {
+    if (err) return next(err);
+    if (author === null) {
+      var err = new Error('Author not found');
+      err.status = 404;
+      return next(err);
     }
-  );
+    res.render('author_form', {
+      title: 'Update Author',
+      author: author,
+    });
+  });
 };
 
 // Handle Author update on POST.
@@ -234,9 +223,12 @@ exports.author_update_post = [
         family_name: req.body.family_name,
         date_of_birth: req.body.date_of_birth,
         date_of_death: req.body.date_of_death,
-        _id: req.params.id,
+        _id: req.params.id
       });
-      Author.findByIdAndUpdate(req.params.id, author, {}, function(err, theauthor) {
+      Author.findByIdAndUpdate(req.params.id, author, {}, function(
+        err,
+        theauthor
+      ) {
         if (err) return next(err);
         res.redirect(theauthor.url);
       });
