@@ -19,11 +19,11 @@ AuthorSchema.virtual('url').get(function() {
 });
 
 AuthorSchema.virtual('date_of_birth_formatted').get(function() {
-  return this.date_of_birth ? moment(this.date_of_birth).format('MMMM Do, YYYY') : '';
+  return this.date_of_birth ? moment(this.date_of_birth).format('YYYY-MM-DD') : '';
 });
 
 AuthorSchema.virtual('date_of_death_formatted').get(function() {
-  return this.date_of_death ? moment(this.date_of_death).format('MMMM Do, YYYY') : '';
+  return this.date_of_death ? moment(this.date_of_death).format('YYYY-MM-DD') : '';
 });
 
 AuthorSchema.virtual('lifespan').get(function() {
