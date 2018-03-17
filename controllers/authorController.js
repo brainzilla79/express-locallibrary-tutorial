@@ -217,6 +217,7 @@ exports.author_update_post = [
         author: req.body,
         errors: errors.array()
       });
+      return;
     } else {
       var author = new Author({
         first_name: req.body.first_name,
