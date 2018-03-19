@@ -21,8 +21,13 @@ function authRoute(req, res, next) {
 }
 
 module.exports = function(app, passport) {
+  app.use((req, res, next) => {
+    res.locals.user = req.user;
+    next();
+  });
 
   app.get('/', function(req, res) {
+    app.locals.user = req.user;
     if (req.user) {
       res.redirect('/catalog');
     } else {
